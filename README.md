@@ -7,10 +7,10 @@ em>p</em>-center problem"](https://doi.org/10.1016/j.cor.2004.09.035), you can f
 
 This implementation was developed in C++ and run under a Unix-like OS. You must verify that you have install the following tools:
 
-GNU C++
-Make
-Git
-CPLEX
+* GNU C++
+* Make
+* Git
+* CPLEX
 
 If you don't have this tools, then install the packages build-essential and git.
 
