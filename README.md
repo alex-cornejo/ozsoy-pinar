@@ -25,7 +25,7 @@ $ cd ozsoy-pinar
 $ make
 ```
 
-The `make` command will compile the code into an executable named `CVPCP`. Before to use the `make` command, you need to update the paths in the `Makefile`, i.n. CPLEX installation path.
+The `make` command will compile the code into an executable named `CVPCP`. Before to use the `make` command, you need to update the paths in the `Makefile`, i.e. CPLEX installation path.
 
 ## Dataset format
 
