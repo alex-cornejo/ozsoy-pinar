@@ -5,14 +5,14 @@ This repository contains the computational implementations of the exact method p
 
 ## Prerequisites
 
-This implementation was developed in C++ and run under a Unix-like OS and use solver CPLEX. You must verify that you have install the following tools:
+This implementation was developed in C++ and run under a Unix-like OS and use CPLEX solver. You must verify that you have install the following tools:
 
 * GNU C++
 * Make
 * Git
 * CPLEX
 
-If you don't have this tools, then install the packages `build-essential` and `git.
+If you don't have this tools, then install the packages `build-essential` and `git`.
 
 ## Compilation
 
