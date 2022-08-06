@@ -1,7 +1,7 @@
 # An exact algorithm for the capacitated vertex <em>p</em>-center problem
 
 This repository contains the computational implementations of the exact method proposed in ["An exact algorithm for the capacitated vertex 
-<em>p</em>-center problem"](https://doi.org/10.1016/j.cor.2004.09.035) by Özsoy & Pınar, you can find there a formal definition and a experimental approach about this implementation.
+<em>p</em>-center problem"](https://doi.org/10.1016/j.cor.2004.09.035) by Özsoy & Pınar, you can find there the formal definition.
 
 ## Prerequisites
 
@@ -35,7 +35,7 @@ This implementation use the same dataset format defined in [Heuristic for the Ca
 
 For execute the heuristic method, run the following:
 ```
-$ ./CVPCP {file} {time}
+$ ./CVPCP {file} {max_time}
 ```
 Where,
 
