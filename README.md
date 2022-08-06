@@ -1,18 +1,18 @@
 # An exact algorithm for the capacitated vertex <em>p</em>-center problem
 
 This repository contains the computational implementations of the exact method proposed in ["An exact algorithm for the capacitated vertex 
-em>p</em>-center problem"](https://doi.org/10.1016/j.cor.2004.09.035), you can find there a formal definition and a experimental approach about this.
+<em>p</em>-center problem"](https://doi.org/10.1016/j.cor.2004.09.035) by Özsoy & Pınar, you can find there a formal definition and a experimental approach about this implementation.
 
 ## Prerequisites
 
-This implementation was developed in C++ and run under a Unix-like OS. You must verify that you have install the following tools:
+This implementation was developed in C++ and run under a Unix-like OS and use solver CPLEX. You must verify that you have install the following tools:
 
 * GNU C++
 * Make
 * Git
 * CPLEX
 
-If you don't have this tools, then install the packages build-essential and git.
+If you don't have this tools, then install the packages `build-essential` and `git.
 
 ## Compilation
 
@@ -25,7 +25,47 @@ $ cd ozsoy-pinar
 $ make
 ```
 
-The `make` command will compile the code into an executable named `CVPCB`. Before to use the `make` command, you need to update the paths in the `Makefile`, i.n. CPLEX installation path.
+The `make` command will compile the code into an executable named `CVPCP`. Before to use the `make` command, you need to update the paths in the `Makefile`, i.n. CPLEX installation path.
+
+## Dataset format
+
+This implementation use the same dataset format defined in [Heuristic for the Capacitated Vertex p-Center Problem](https://github.com/dagoquevedo/cvpcp).
+
+## Execution
+
+For execute the heuristic method, run the following:
+```
+$ ./CVPCP {file} {time}
+```
+Where,
+
+|  Parameter |                                          Description                                          |
+|----------|---------------------------------------------------------------------------------------------|
+| `{file}` | Instance file path with a valid format, defined here                                    |
+| `{max_time}`    | Maximum time execution, in seconds                                                                  |
+
+### Output information
+
+The execution report a output with the following relevant information:
+
+`$ [set] [instance] [n] [p] [best_lb] [time] [memory] [status] [max_time]`
+
+Where,
+
+|  Output  |                                Description                               |
+|-----------|------------------------------------------------------------------------|
+| `[set]`       | Set number                                                               |
+| `[instance]`  | Instance number                                                          |
+| `[n]`         | Number of nodes                                                          |
+| `[p]`         | Number of centers                                                        |
+| `[best_lb]`   | Best lower bound found                                                   ||
+| `[time]`      | Execution time, in seconds                                                |
+| `[memory]`    | Maximum memory used                                                      |
+| `[status]`  | CPLEX status                     |
+| `[max_time]`  | Maximum time execution, in seconds                     |
 
 
+## Citation
 
+F. Aykut Özsoy, Mustafa Ç. Pınar, An exact algorithm for the capacitated vertex <em>p</em>-center problem, <em>Computers & Operations Research</em>,
+33(5):1420–1436, 2006. [doi.org/10.1016/j.cor.2004.09.035](https://doi.org/10.1016/j.cor.2004.09.035).
