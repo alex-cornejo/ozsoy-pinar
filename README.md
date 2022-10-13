@@ -48,7 +48,7 @@ Where,
 
 The execution report a output with the following relevant information:
 
-`$ [set] [instance] [n] [p] [best_lb] [time] [memory] [status] [max_time]`
+`$ [set] [instance] [n] [p] [best_lb] [found_lb] [gap] [time] [memory] [status] [max_time]`
 
 Where,
 
@@ -58,7 +58,9 @@ Where,
 | `[instance]`  | Instance number                                                          |
 | `[n]`         | Number of nodes                                                          |
 | `[p]`         | Number of centers                                                        |
-| `[best_lb]`   | Best lower bound found                                                   ||
+| `[best_lb]`   | Best known lower bound                                                    |
+| `[found_lb]`   | Best lower bound found                                                   |
+| `[gap]`   | Gap between `[best_lb]` and `[found_lb]`                                             |
 | `[time]`      | Execution time, in seconds                                                |
 | `[memory]`    | Maximum memory used                                                      |
 | `[status]`  | CPLEX status                     |
