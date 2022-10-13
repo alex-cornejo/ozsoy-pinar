@@ -13,6 +13,10 @@ extern int             *ordrad;
 extern ASSVAR          *assignvar;
 extern int             varassigncount;
 int                    agregatedDemand;
+extern int             STATUS;
+
+extern double          cputimeMAX;
+extern size_t          cpumemoryMAX;
 
 
 int NUMCOLS,NUMROWS,NUMNZ;
@@ -50,70 +54,77 @@ double solvelp (int rad)
    double   objval;
    CPXENVptr     env = NULL;
    CPXLPptr      lp = NULL;
-   int           status;
+   int           STATUS;
 
    NUMCOLS = varassigncount+n;
    NUMROWS = 2*n+varassigncount;
    NUMNZ   = 2*varassigncount+2*varassigncount;
-   env = CPXopenCPLEX (&status);
+   env = CPXopenCPLEX (&STATUS);
 
    if ( env == NULL ) {
       char  errmsg[1024];
       fprintf (stderr, "Could not open CPLEX environment.\n");
-      CPXgeterrorstring (env, status, errmsg);
+      CPXgeterrorstring (env, STATUS, errmsg);
       fprintf (stderr, "%s", errmsg);
       goto TERMINATE;
    }
-   status = CPXsetintparam (env, CPX_PARAM_SCRIND, CPX_OFF);
-   if ( status ) {
+    
+    STATUS = CPXsetlpcallbackfunc (env, mycallback, NULL);
+    if ( STATUS ) {
+        fprintf (stderr, "Failed to set callback function.\n");
+        goto TERMINATE;
+    }
+    
+   STATUS = CPXsetintparam (env, CPX_PARAM_SCRIND, CPX_OFF);
+   if ( STATUS ) {
       fprintf (stderr, 
-               "Failure to turn on screen indicator, error %d.\n", status);
+               "Failure to turn on screen indicator, error %d.\n", STATUS);
       goto TERMINATE;
    }
-   status = setproblemdatalp (&probname, &numcols, &numrows, &objsen, &obj, 
+   STATUS = setproblemdatalp (&probname, &numcols, &numrows, &objsen, &obj, 
                             &rhs, &sense, &matbeg, &matcnt, &matind, &matval, 
                             &lb, &ub);
-   if ( status ) {
+   if ( STATUS ) {
       fprintf (stderr, "Failed to build problem data arrays.\n");
       goto TERMINATE;
    }
-   lp = CPXcreateprob (env, &status, probname);
+   lp = CPXcreateprob (env, &STATUS, probname);
    if ( lp == NULL ) {
       fprintf (stderr, "Failed to create LP.\n");
       goto TERMINATE;
    }
-   status = CPXcopylp (env, lp, numcols, numrows, objsen, obj, rhs, 
+   STATUS = CPXcopylp (env, lp, numcols, numrows, objsen, obj, rhs, 
                        sense, matbeg, matcnt, matind, matval,
                        lb, ub, NULL);
 
-   if ( status ) {
+   if ( STATUS ) {
       fprintf (stderr, "Failed to copy problem data.\n");
       goto TERMINATE;
    }
-   status = CPXlpopt (env, lp);
-   if ( status ) {
+   STATUS = CPXlpopt (env, lp);
+   if ( STATUS ) {
 	   fprintf (stderr, "Failed to optimize MIP.\n");
 	   goto TERMINATE;
    }
    solstat = CPXgetstat (env, lp);
-   status = CPXgetobjval (env, lp, &objval);
-   if ( status ) {
+   STATUS = CPXgetobjval (env, lp, &objval);
+   if ( STATUS ) {
 	   fprintf (stderr,"No MIP objective value available.  Exiting...\n");
 	   goto TERMINATE;
    }
 TERMINATE:
    if ( lp != NULL ) {
-      status = CPXfreeprob (env, &lp);
-      if ( status ) {
-         fprintf (stderr, "CPXfreeprob failed, error code %d.\n", status);
+      STATUS = CPXfreeprob (env, &lp);
+      if ( STATUS ) {
+         fprintf (stderr, "CPXfreeprob failed, error code %d.\n", STATUS);
       }
    }
    if ( env != NULL ) {
-      status = CPXcloseCPLEX (&env);
-      if ( status ) {
+      STATUS = CPXcloseCPLEX (&env);
+      if ( STATUS ) {
          char  errmsg[1024];
          fprintf (stderr, "Could not close CPLEX environment.\n");
-         CPXgeterrorstring (env, status, errmsg);
+         CPXgeterrorstring (env, STATUS, errmsg);
          fprintf (stderr, "%s", errmsg);
       }
    }
@@ -150,7 +161,7 @@ setproblemdatalp (char **probname_p, int *numcols_p, int *numrows_p,
    double   *zmatval = NULL;
    double   *zlb = NULL;
    double   *zub = NULL;
-   int      status = 0;
+   int      STATUS = 0;
  
 
    zprobname = (char *) malloc (16 * sizeof(char)); 
@@ -169,7 +180,7 @@ setproblemdatalp (char **probname_p, int *numcols_p, int *numrows_p,
         zmatbeg   == NULL || zmatcnt == NULL ||
         zmatind   == NULL || zmatval == NULL ||
         zlb       == NULL || zub     == NULL )  {
-      status = 1;
+      STATUS = 1;
       goto TERMINATE;
    }
 
@@ -234,7 +245,7 @@ setproblemdatalp (char **probname_p, int *numcols_p, int *numrows_p,
 
 TERMINATE:
 
-   if ( status ) {
+   if ( STATUS ) {
       free_and_null ((char **) &zprobname);
       free_and_null ((char **) &zobj);
       free_and_null ((char **) &zrhs);
@@ -263,7 +274,7 @@ TERMINATE:
       *ub_p        = zub;
 
    }
-   return (status);
+   return (STATUS);
 
 }
 
@@ -280,9 +291,27 @@ static int CPXPUBLIC mycallback (CPXCENVptr env, void *cbdata, int wherefrom, vo
 	double objval,feasibleval;
 
 	if (wherefrom == CPX_CALLBACK_MIP) {
-		status = CPXgetcallbackinfo(env, cbdata, 101, CPX_CALLBACK_INFO_BEST_REMAINING, &objval);
-		status = CPXgetcallbackinfo(env, cbdata, 101, CPX_CALLBACK_INFO_BEST_INTEGER, &feasibleval);
+		status = CPXgetcallbackinfo(env, cbdata, 101,
+                                    CPX_CALLBACK_INFO_BEST_REMAINING, &objval);
+		status = CPXgetcallbackinfo(env, cbdata, 101,
+                                    CPX_CALLBACK_INFO_BEST_INTEGER, &feasibleval);
 	}
-	if (objval >= p  || feasibleval <= p) return 1;
-	return 0;
+
+    if (runTime() > cputimeMAX)
+    {
+        STATUS = CPX_STAT_ABORT_TIME_LIM;
+        print();
+	    exit(8);
+	}
+    
+    if (runMemory() > cpumemoryMAX) {
+        STATUS = CPXMIP_MEM_LIM_FEAS;
+        print();
+	    exit(8);
+    }
+
+	if (objval >= p  || feasibleval <= p)
+        return 1;
+	
+    return 0;
 }

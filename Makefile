@@ -1,44 +1,29 @@
-#Notas
-#Compilacion de toda la libreria def.h
-#ar -rcs libdef.a ReadInstance.o LP.o MILP.o 
+#Detecting OS and Architecture
+UNAME_S := $(shell uname -s)
 
-SYSTEM     = x86_darwin
-LIBFORMAT  = static_pic
+CC  = gcc -O3
 
-#------------------------------------------------------------
-#
-# When you adapt this makefile to compile your CPLEX programs
-# please copy this makefile and set CPLEXDIR and CONCERTDIR to
-# the directories where CPLEX and CONCERT are installed.
-#
-#------------------------------------------------------------
+ifeq ($(UNAME_S), Darwin)
+    SYSTEM        = x86-64_darwin
+    LIBFORMAT     = static_pic
+    CPLEXDIR      = /Users/dago/Applications/IBM/ILOG/CPLEX_Studio125/cplex
+    CONCERTDIR    = /Users/dago/Applications/IBM/ILOG/CPLEX_Studio125/concert
+endif
 
-CPLEXDIR      = /Users/dago/Applications/IBM/ILOG/CPLEX_Studio125/cplex
-CONCERTDIR    = /Users/dago/Applications/IBM/ILOG/CPLEX_Studio125/concert
-# ---------------------------------------------------------------------
-# Compiler selection 
-# ---------------------------------------------------------------------
-
-CC  = gcc -O0
+ifeq ($(UNAME_S), Linux)
+    CC+= -lrt
+    
+    SYSTEM        = x86-64_sles10_4.1
+    LIBFORMAT     = static_pic
+    CPLEXDIR      = /usr/local/CPLEX_Studio_125/cplex
+    CONCERTDIR    = /usr/local/CPLEX_Studio_125/concert
+endif
 
 
-# ---------------------------------------------------------------------
-# Compiler options 
-# ---------------------------------------------------------------------
-
-COPT  = -m32 -fPIC -fno-strict-aliasing
-
-# ---------------------------------------------------------------------
-# Link options and libraries
-# ---------------------------------------------------------------------
-
-CPLEXBINDIR   = $(CPLEXDIR)/bin/$(BINDIST)
-CPLEXJARDIR   = $(CPLEXDIR)/lib/cplex.jar
 CPLEXLIBDIR   = $(CPLEXDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
-CONCERTLIBDIR = $(CONCERTDIR)/lib/$(SYSTEM)/$(LIBFORMAT)
-
-
-CLNFLAGS  = -L$(CPLEXLIBDIR) -lcplex -m32 -lm -lpthread -framework CoreFoundation -framework IOKit -fno-strict-aliasing
+CONCERTLIBDIR = $(CONCERTDIR)/lib/$(SYSTEM)/$(LIBFORMAT)    
+CLNFLAGS      = -L$(CPLEXLIBDIR) -lcplex -m64 -lm -lpthread
+COPT          = -m64 -fPIC -fno-strict-aliasing
 
 
 all:
@@ -47,10 +32,7 @@ all:
 
 CONCERTINCDIR = $(CONCERTDIR)/include
 CPLEXINCDIR   = $(CPLEXDIR)/include
-
-CFLAGS  = $(COPT)  -I$(CPLEXINCDIR)
-
-# ------------------------------------------------------------
+CFLAGS        = $(COPT) -I$(CPLEXINCDIR)
 
 clean :
 	/bin/rm -rf *.o *~ *.class
@@ -58,19 +40,8 @@ clean :
 	/bin/rm -rf *.mps *.ord *.sos *.lp *.sav *.net *.msg *.log *.clp
     
 
-# ------------------------------------------------------------
-#
-# The examples
-
-CVPCP.o: CVPCP.c LP.c MILP.c ReadInstance.c
-	$(CC) -c $(CFLAGS) CVPCP.c -o CVPCP.o
 CVPCP: CVPCP.o
-	$(CC) -c $(CFLAGS) ReadInstance.c -o lib/ReadInstance.o
-	$(CC) -c $(CFLAGS) LP.c -o lib/LP.o
-	$(CC) -c $(CFLAGS) MILP.c -o lib/MILP.o
-	ar rcs lib/libdef.a lib/ReadInstance.o lib/LP.o lib/MILP.o
-	$(CC) $(CFLAGS) CVPCP.o -o CVPCP $(CLNFLAGS) -L./lib -ldef
+	$(CC) $(CFLAGS) CVPCP.o ReadInstance.c LP.c MILP.c -o CVPCP $(CLNFLAGS) -w
 
-# Local Variables:
-# mode: makefile
-# End:
+CVPCP.o: main.c ReadInstance.c LP.c MILP.c def.h
+	$(CC) -c $(CFLAGS) main.c -o CVPCP.o

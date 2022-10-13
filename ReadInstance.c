@@ -12,34 +12,33 @@ extern int      p;      /* numero de medianas */
 extern int      *b;     /* capacidad */
 extern int      **c;    /* matriz de costes */
 extern int      *d;     /* vector de demandas */
-extern FILE     *fp;    
+extern FILE     *fp;
 int             **xy;   /* coordenadas*/
 
-void ReadInstance(char *archivo) {
-    register    i,j;
-    int valor;
-    float value;
 
+void ReadInstance(char *archivo) {
+    int     register    i,j;
+    int     valor;
+    double  value;
+    
     fp = fopen(archivo, "r");
     if ( fp == NULL) {
         error(2);
     }
-
-    fscanf(fp, "%d", &valor);
-    tipo=valor;
     
-    fscanf(fp, "%d", &valor);
+    fscanf(fp, "%d",  &valor);
+    tipo=valor;
+    fscanf(fp, "%d",  &valor);
     id=valor;
+    fscanf(fp, "%d",  &valor);
+    n=valor;
+    fscanf(fp, "%d",  &valor);
+    p=valor;
+    fscanf(fp, "%lf", &value);
+    
     
     //Beasley
     if (tipo==1) {
-        fscanf(fp, "%d", &valor);
-        n=valor;
-        fscanf(fp, "%d", &valor);
-        p=valor;
-        
-        fscanf(fp, "%d", &valor);
-
         //Dimension
         resize(true);
         
@@ -71,47 +70,34 @@ void ReadInstance(char *archivo) {
     }
     
     if (tipo==2) {
-        fscanf(fp, "%d", &valor);
-        n=valor;
-        fscanf(fp, "%d", &valor);
-        p=valor;
-        
-        fscanf(fp, "%d", &valor);
-        
         //Dimension
         resize(false);
         
         //Capacidad
         for (i=0; i<n; i++){
-            fscanf(fp, "%f", &value);
+            fscanf(fp, "%lf", &value);
             b[i]=(int)value;
         }
         
         //Demanda
         for (i=0; i<n; i++){
-            fscanf(fp, "%f", &value);
+            fscanf(fp, "%lf", &value);
             d[i]=(int)value;
         }
         
         //Costos
         for (i=0; i<n; i++)
             for (j=0; j<n; j++){
-                fscanf(fp, "%f", &value);
+                fscanf(fp, "%lf", &value);
                 c[i][j]=(int)value;
             }
     }
     
-    if (tipo==3) {
-        fscanf(fp, "%d", &valor);
-        n=valor;
-        fscanf(fp, "%d", &valor);
-        p=valor;
+    if (tipo==3 || tipo==8) {
         
-        fscanf(fp, "%f", &value);
-    
         //Dimension
         resize(true);
-    
+        
         //Demanda y Coordenadas
         for (i=0; i<n; i++) {
             fscanf(fp, "%d", &xy[i][0]);
@@ -134,12 +120,6 @@ void ReadInstance(char *archivo) {
     }
     
     if (tipo>=4 && tipo<=7) {
-        fscanf(fp, "%d", &valor);
-        n=valor;
-        fscanf(fp, "%d", &valor);
-        p=valor;
-        
-        fscanf(fp, "%f", &value);
         
         //Dimension
         resize(false);
@@ -147,24 +127,24 @@ void ReadInstance(char *archivo) {
         //Costos
         for (i=0; i<n; i++)
             for (j=0; j<n; j++){
-                fscanf(fp, "%f", &value);
-                c[i][j]=(int)value;
+                fscanf(fp, "%d", &valor);
+                c[i][j]=valor;
             }
         
         //Demanda
         for (i=0; i<n; i++){
-            fscanf(fp, "%f", &value);
-            d[i]=(int)value;
+            fscanf(fp, "%d", &valor);
+            d[i]=valor;
         }
         
         //Capacidad
         for (i=0; i<n; i++){
-            fscanf(fp, "%f", &value);
-            b[i]=(int)value;
+            fscanf(fp, "%d", &valor);
+            b[i]=valor;
         }
     }
-    
 }
+
 
 void resize(bool coor)
 {
@@ -187,7 +167,7 @@ void resize(bool coor)
     
     for (i=0; i<n; i++)
         if ( (c[i] = (int *) calloc (n, sizeof(int))) == NULL )
-            error(3);   
+            error(3);
 }
 
 void error(int ErrorNo) {
@@ -202,7 +182,7 @@ void error(int ErrorNo) {
     if (ErrorNo == 3) {
         printf("\nError: Memoria insuficiente\n");
         exit(8);
-    }    
+    }
 }
 
 double euclidean(double x1, double x2, double y1, double y2)

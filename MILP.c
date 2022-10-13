@@ -11,8 +11,10 @@ extern int              **c;            /* matriz de costes */
 extern int              *d;             /* vector de demandas */
 extern ASSVAR           *assignvar;
 extern int              varassigncount;
-extern double           cputimeMAX;
 extern int              STATUS;
+
+extern double           cputimeMAX;
+extern size_t           cpumemoryMAX;
 
 int                     agregatedDemand;
 double                  Bestobjval,Bestfeasibleval;
@@ -354,14 +356,21 @@ static int CPXPUBLIC mycallback (CPXCENVptr env, void *cbdata, int wherefrom, vo
 		status = CPXgetcallbackinfo(env, cbdata, 101, 
                                     CPX_CALLBACK_INFO_NODE_COUNT, &number);
 	}
-    
-    if (runTime() > cputimeMAX)  
+   
+    if (runTime() > cputimeMAX)
     {
-        STATUS=CPX_STAT_ABORT_TIME_LIM;
+        STATUS = CPX_STAT_ABORT_TIME_LIM;
         print();
 	    exit(8);
 	}
-	if (Bestobjval - p > EPSILON  || Bestfeasibleval - p <= EPSILON) 
+    
+    if (runMemory() > cpumemoryMAX) {
+        STATUS = CPXMIP_MEM_LIM_FEAS;
+        print();
+	    exit(8);
+    }
+    
+	if (Bestobjval - p > EPSILON  || Bestfeasibleval - p <= EPSILON)
         return 1;
     
 	return 0;
